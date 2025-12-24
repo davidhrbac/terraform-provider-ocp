@@ -33,7 +33,7 @@ signs:
 release:
   github:
     owner: davidhrbac
-    name: tfocp
+    name: terraform-provider-ocp
   prerelease: auto
 
 changelog:
@@ -41,7 +41,7 @@ changelog:
   sort: asc
   abbrev: 7
 
-  format: "[{{ .SHA }}](https://github.com/davidhrbac/tfocp/commit/{{ .SHA }}) : {{ .Message }}"
+  format: "[{{ .SHA }}](https://github.com/davidhrbac/terraform-provider-ocp/commit/{{ .SHA }}) : {{ .Message }}"
 
   groups:
     - title: "New Features"
