@@ -91,4 +91,4 @@ failed to create virtual host: validation error
 
 ## License
 
-MIT
+MPL-2.0
