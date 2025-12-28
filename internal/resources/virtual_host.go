@@ -27,74 +27,74 @@ func ResourceVirtualHost() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"region": {
-				Type:     schema.TypeString,
+				Type:        schema.TypeString,
 				Description: "Region.",
-				Required: true,
+				Required:    true,
 			},
 			"customer_id": {
-				Type:     schema.TypeString,
+				Type:        schema.TypeString,
 				Description: "ID of the customer that owns the virtual host.",
-				Required: true,
-				ForceNew: true,
+				Required:    true,
+				ForceNew:    true,
 			},
 			"project_id": {
-				Type:     schema.TypeString,
+				Type:        schema.TypeString,
 				Description: "ID of the project in which the virtual host is created.",
-				Required: true,
-				ForceNew: true,
+				Required:    true,
+				ForceNew:    true,
 			},
 			"hostname": {
-				Type:     schema.TypeString,
+				Type:        schema.TypeString,
 				Description: "Hostname.",
-				Required: true,
+				Required:    true,
 			},
 			"domain_id": {
-				Type:     schema.TypeString,
+				Type:        schema.TypeString,
 				Description: "ID of the domain.",
-				Required: true,
+				Required:    true,
 			},
 			"allow_resize_restart": {
-			    Type:     schema.TypeBool,
-			    Description: "Allow resize restart.",
-			    Optional: true,
-			    Default:  true,
+				Type:        schema.TypeBool,
+				Description: "Allow resize restart.",
+				Optional:    true,
+				Default:     true,
 			},
 			"cpu_count": {
-				Type:     schema.TypeInt,
+				Type:        schema.TypeInt,
 				Description: "Cpu count.",
-				Required: true,
+				Required:    true,
 			},
 			"cores_per_socket": {
-				Type:     schema.TypeInt,
+				Type:        schema.TypeInt,
 				Description: "Cores per socket.",
-				Optional: true,
-				Default:  1,
+				Optional:    true,
+				Default:     1,
 			},
 			"memory_size_gb": {
-				Type:     schema.TypeInt,
+				Type:        schema.TypeInt,
 				Description: "Memory size gb.",
-				Required: true,
+				Required:    true,
 			},
 			"tier_id": {
-				Type:     schema.TypeString,
+				Type:        schema.TypeString,
 				Description: "ID of the storage tier assigned to the virtual host.",
-				Required: true,
+				Required:    true,
 			},
 			"template_id": {
-				Type:     schema.TypeString,
+				Type:        schema.TypeString,
 				Description: "ID of the template used to create the virtual host.",
-				Required: true,
-				ForceNew: true,
+				Required:    true,
+				ForceNew:    true,
 			},
 			"note": {
-				Type:     schema.TypeString,
+				Type:        schema.TypeString,
 				Description: "Note.",
-				Required: true,
+				Required:    true,
 			},
 			"data_protection_policy": {
-				Type:     schema.TypeString,
+				Type:        schema.TypeString,
 				Description: "Data protection policy.",
-				Required: true,
+				Required:    true,
 			},
 			"interfaces": {
 				Type:     schema.TypeList,
@@ -102,33 +102,33 @@ func ResourceVirtualHost() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"network_id": {
-							Type:     schema.TypeString,
+							Type:        schema.TypeString,
 							Description: "ID of the network for this interface.",
-							Required: true,
+							Required:    true,
 						},
 						"auto_assign_ip": {
-							Type:     schema.TypeBool,
+							Type:        schema.TypeBool,
 							Description: "Whether the IP should be assigned automatically.",
-							Optional: true,
-							Default:  true,
+							Optional:    true,
+							Default:     true,
 						},
 						"ip": {
-							Type:     schema.TypeString,
+							Type:        schema.TypeString,
 							Description: "IP address for this interface.",
-							Optional: true,
+							Optional:    true,
 						},
 					},
 				},
 			},
 			"uuid": {
-				Type:     schema.TypeString,
+				Type:        schema.TypeString,
 				Description: "Uuid.",
-				Computed: true,
+				Computed:    true,
 			},
 			"status": {
-				Type:     schema.TypeString,
+				Type:        schema.TypeString,
 				Description: "Status.",
-				Computed: true,
+				Computed:    true,
 			},
 		},
 	}
@@ -229,19 +229,19 @@ func ResourceVirtualHostCreate(ctx context.Context, d *schema.ResourceData, meta
 
 	// Create returns a union payload; on success we use the returned virtualHost directly (no follow-up listing).
 	type virtualHost struct {
-		ID             string `json:"id"`
-		UUID           string `json:"uuid"`
-		Hostname       string `json:"hostname"`
-		State          string `json:"state"`
-		CpuCount       int    `json:"cpuCount"`
-		CoresPerSocket int    `json:"coresPerSocket"`
-		MemorySizeMB   int    `json:"memorySizeMB"`
+		ID             string              `json:"id"`
+		UUID           string              `json:"uuid"`
+		Hostname       string              `json:"hostname"`
+		State          string              `json:"state"`
+		CpuCount       int                 `json:"cpuCount"`
+		CoresPerSocket int                 `json:"coresPerSocket"`
+		MemorySizeMB   int                 `json:"memorySizeMB"`
 		Tier           struct{ ID string } `json:"tier"`
 		Domain         struct{ ID string } `json:"domain"`
 		Template       struct{ ID string } `json:"template"`
 		Project        struct{ ID string } `json:"project"`
 		Customer       struct{ ID string } `json:"customer"`
-		Region         string             `json:"region"`
+		Region         string              `json:"region"`
 	}
 
 	type fieldMessages struct {
@@ -353,39 +353,38 @@ func ResourceVirtualHostRead(ctx context.Context, d *schema.ResourceData, meta i
 	vars := map[string]interface{}{"id": d.Id()}
 
 	var resp struct {
-		
-VirtualHost *struct {
-            ID             string `json:"id"`
-            UUID           string `json:"uuid"`
-            Hostname       string `json:"hostname"`
-            State          string `json:"state"`
-            CpuCount       int    `json:"cpuCount"`
-            CoresPerSocket int    `json:"coresPerSocket"`
-            MemorySizeMB   int    `json:"memorySizeMB"`
-            Note           string `json:"note"`
-            DataProtectionPolicy *struct {
-                ID   string `json:"id"`
-                Note string `json:"note"`
-            } `json:"dataProtectionPolicy"`
-            NetworkInterfaceList []struct {
-                Network struct{ ID string } `json:"network"`
-                IPv4Addresses []struct {
-                    IP        string `json:"ip"`
-                    Prefixlen int    `json:"prefixlen"`
-                } `json:"ipv4Addresses"`
-                IPv6Addresses []struct {
-                    IP        string `json:"ip"`
-                    Prefixlen int    `json:"prefixlen"`
-                } `json:"ipv6Addresses"`
-                StartConnected bool `json:"startConnected"`
-            } `json:"networkInterfaceList"`
-            Tier     struct{ ID string } `json:"tier"`
-            Domain   struct{ ID string } `json:"domain"`
-            Template struct{ ID string } `json:"template"`
-            Project  struct{ ID string } `json:"project"`
-            Customer struct{ ID string } `json:"customer"`
-            Region   string             `json:"region"`
-        } `json:"virtualHost"`
+		VirtualHost *struct {
+			ID                   string `json:"id"`
+			UUID                 string `json:"uuid"`
+			Hostname             string `json:"hostname"`
+			State                string `json:"state"`
+			CpuCount             int    `json:"cpuCount"`
+			CoresPerSocket       int    `json:"coresPerSocket"`
+			MemorySizeMB         int    `json:"memorySizeMB"`
+			Note                 string `json:"note"`
+			DataProtectionPolicy *struct {
+				ID   string `json:"id"`
+				Note string `json:"note"`
+			} `json:"dataProtectionPolicy"`
+			NetworkInterfaceList []struct {
+				Network       struct{ ID string } `json:"network"`
+				IPv4Addresses []struct {
+					IP        string `json:"ip"`
+					Prefixlen int    `json:"prefixlen"`
+				} `json:"ipv4Addresses"`
+				IPv6Addresses []struct {
+					IP        string `json:"ip"`
+					Prefixlen int    `json:"prefixlen"`
+				} `json:"ipv6Addresses"`
+				StartConnected bool `json:"startConnected"`
+			} `json:"networkInterfaceList"`
+			Tier     struct{ ID string } `json:"tier"`
+			Domain   struct{ ID string } `json:"domain"`
+			Template struct{ ID string } `json:"template"`
+			Project  struct{ ID string } `json:"project"`
+			Customer struct{ ID string } `json:"customer"`
+			Region   string              `json:"region"`
+		} `json:"virtualHost"`
 	}
 
 	if err := client.Do(queryGetVM, vars, &resp); err != nil {

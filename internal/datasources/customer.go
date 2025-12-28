@@ -16,14 +16,14 @@ func DataSourceCustomer() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:     schema.TypeString,
+				Type:        schema.TypeString,
 				Description: "Name of the object.",
-				Required: true,
+				Required:    true,
 			},
 			"id": {
-				Type:     schema.TypeString,
+				Type:        schema.TypeString,
 				Description: "ID of the object.",
-				Computed: true,
+				Computed:    true,
 			},
 		},
 	}
@@ -81,4 +81,3 @@ func dataSourceCustomerRead(ctx context.Context, d *schema.ResourceData, meta in
 
 	return nil
 }
-

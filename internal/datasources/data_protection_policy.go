@@ -17,29 +17,29 @@ func DataSourceDataProtectionPolicy() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"customer_id": {
-				Type:     schema.TypeString,
+				Type:        schema.TypeString,
 				Description: "ID of the customer.",
-				Required: true,
+				Required:    true,
 			},
 			"project_id": {
-				Type:     schema.TypeString,
+				Type:        schema.TypeString,
 				Description: "ID of the project.",
-				Required: true,
+				Required:    true,
 			},
 			"note": {
-				Type:     schema.TypeString,
+				Type:        schema.TypeString,
 				Description: "Note.",
-				Required: true,
+				Required:    true,
 			},
 			"solution_type": {
-				Type:     schema.TypeString,
+				Type:        schema.TypeString,
 				Description: "Solution type.",
-				Optional: true,
+				Optional:    true,
 			},
 			"id": {
-				Type:     schema.TypeString,
+				Type:        schema.TypeString,
 				Description: "ID of the object.",
-				Computed: true,
+				Computed:    true,
 			},
 		},
 	}
@@ -102,7 +102,7 @@ func dataProtectionPolicyRead(ctx context.Context, d *schema.ResourceData, meta 
 	}
 
 	filters := map[string]interface{}{
-		"customer":        customerFilter,
+		"customer":          customerFilter,
 		"separationPodList": separationPodFilter,
 		"dedicatedCluster":  dedicatedClusterFilter,
 		"note":              noteFilter,
@@ -155,4 +155,3 @@ func dataProtectionPolicyRead(ctx context.Context, d *schema.ResourceData, meta 
 
 	return nil
 }
-
