@@ -18,6 +18,13 @@ func ResourceVirtualHost() *schema.Resource {
 		UpdateContext: ResourceVirtualHostUpdate,
 		DeleteContext: ResourceVirtualHostDelete,
 
+		// Import supports: terraform import ocp_virtual_host.<name> <VirtualHost GlobalID>
+		// The ID must be the GraphQL GlobalID (VirtualHostNode.id) because Read() uses:
+		//   virtualHost(id: GlobalID!)
+		Importer: &schema.ResourceImporter{
+			StateContext: schema.ImportStatePassthroughContext,
+		},
+
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:     schema.TypeString,
