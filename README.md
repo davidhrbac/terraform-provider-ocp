@@ -57,6 +57,19 @@ Some updates are intentionally restricted to ensure predictable behavior.
 For example, sizing changes and tier changes cannot be applied in a single
 Terraform run.
 
+### Import
+
+You can import an existing virtual host into Terraform state.
+
+The import ID must be the GraphQL **GlobalID** of the virtual host (the `id` field of `VirtualHostNode`).
+This is the same ID accepted by the GraphQL query `virtualHost(id: GlobalID!)`.
+
+```bash
+terraform import ocp_virtual_host.example "<VirtualHost GlobalID>"
+```
+
+After importing, run `terraform plan` to confirm your configuration matches the remote state.
+
 ## Data Sources
 
 Data sources are provided to resolve object IDs by name.
