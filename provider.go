@@ -26,10 +26,10 @@ func Provider() *schema.Provider {
 	return &schema.Provider{
 		Schema: map[string]*schema.Schema{
 			"endpoint": {
-				Type:     schema.TypeString,
+				Type:        schema.TypeString,
 				Description: "Base URL of the OCP GraphQL API.",
-				Optional: true,
-				Default:  "https://ocpportal.int.tieto.com/v2/graphql/",
+				Optional:    true,
+				Default:     "https://ocpportal.int.tieto.com/v2/graphql/",
 			},
 			"token": {
 				Type:        schema.TypeString,
@@ -39,10 +39,10 @@ func Provider() *schema.Provider {
 				DefaultFunc: schema.EnvDefaultFunc("OCP_TOKEN", nil),
 			},
 			"insecure_skip_verify": {
-				Type:     schema.TypeBool,
+				Type:        schema.TypeBool,
 				Description: "Insecure skip verify.",
-				Optional: true,
-				Default:  true,
+				Optional:    true,
+				Default:     true,
 			},
 		},
 		DataSourcesMap: map[string]*schema.Resource{

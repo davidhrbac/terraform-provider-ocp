@@ -17,29 +17,29 @@ func DataSourceTemplate() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:     schema.TypeString,
+				Type:        schema.TypeString,
 				Description: "Name of the object.",
-				Required: true,
+				Required:    true,
 			},
 			"customer_id": {
-				Type:     schema.TypeString,
+				Type:        schema.TypeString,
 				Description: "ID of the customer.",
-				Required: true,
+				Required:    true,
 			},
 			"region": {
-				Type:     schema.TypeString,
+				Type:        schema.TypeString,
 				Description: "Region.",
-				Required: true,
+				Required:    true,
 			},
 			"solution_type": {
-				Type:     schema.TypeString,
+				Type:        schema.TypeString,
 				Description: "Solution type.",
-				Optional: true,
+				Optional:    true,
 			},
 			"id": {
-				Type:     schema.TypeString,
+				Type:        schema.TypeString,
 				Description: "ID of the object.",
-				Computed: true,
+				Computed:    true,
 			},
 		},
 	}
