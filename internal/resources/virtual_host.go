@@ -179,6 +179,9 @@ func ResourceVirtualHostCreate(ctx context.Context, d *schema.ResourceData, meta
 
 	// interfaces -> TemplateInterfaceInput[]
 	rawIfaces := d.Get("interfaces").([]interface{})
+	if len(rawIfaces) == 0 {
+		return diag.Errorf("at least 1 interfaces block is required")
+	}
 	var ifaces []map[string]interface{}
 	for _, raw := range rawIfaces {
 		m := raw.(map[string]interface{})
@@ -325,6 +328,14 @@ query GetVm($id: GlobalID!) {
     cpuCount
     coresPerSocket
     memorySizeMB
+    note
+    dataProtectionPolicy { id note }
+    networkInterfaceList {
+      network { id }
+      ipv4Addresses { ip prefixlen }
+      ipv6Addresses { ip prefixlen }
+      startConnected
+    }
     tier { id }
     domain { id }
     template { id }
@@ -342,21 +353,39 @@ func ResourceVirtualHostRead(ctx context.Context, d *schema.ResourceData, meta i
 	vars := map[string]interface{}{"id": d.Id()}
 
 	var resp struct {
-		VirtualHost *struct {
-			ID             string `json:"id"`
-			UUID           string `json:"uuid"`
-			Hostname       string `json:"hostname"`
-			State          string `json:"state"`
-			CpuCount       int    `json:"cpuCount"`
-			CoresPerSocket int    `json:"coresPerSocket"`
-			MemorySizeMB   int    `json:"memorySizeMB"`
-			Tier           struct{ ID string } `json:"tier"`
-			Domain         struct{ ID string } `json:"domain"`
-			Template       struct{ ID string } `json:"template"`
-			Project        struct{ ID string } `json:"project"`
-			Customer       struct{ ID string } `json:"customer"`
-			Region         string             `json:"region"`
-		} `json:"virtualHost"`
+		
+VirtualHost *struct {
+            ID             string `json:"id"`
+            UUID           string `json:"uuid"`
+            Hostname       string `json:"hostname"`
+            State          string `json:"state"`
+            CpuCount       int    `json:"cpuCount"`
+            CoresPerSocket int    `json:"coresPerSocket"`
+            MemorySizeMB   int    `json:"memorySizeMB"`
+            Note           string `json:"note"`
+            DataProtectionPolicy *struct {
+                ID   string `json:"id"`
+                Note string `json:"note"`
+            } `json:"dataProtectionPolicy"`
+            NetworkInterfaceList []struct {
+                Network struct{ ID string } `json:"network"`
+                IPv4Addresses []struct {
+                    IP        string `json:"ip"`
+                    Prefixlen int    `json:"prefixlen"`
+                } `json:"ipv4Addresses"`
+                IPv6Addresses []struct {
+                    IP        string `json:"ip"`
+                    Prefixlen int    `json:"prefixlen"`
+                } `json:"ipv6Addresses"`
+                StartConnected bool `json:"startConnected"`
+            } `json:"networkInterfaceList"`
+            Tier     struct{ ID string } `json:"tier"`
+            Domain   struct{ ID string } `json:"domain"`
+            Template struct{ ID string } `json:"template"`
+            Project  struct{ ID string } `json:"project"`
+            Customer struct{ ID string } `json:"customer"`
+            Region   string             `json:"region"`
+        } `json:"virtualHost"`
 	}
 
 	if err := client.Do(queryGetVM, vars, &resp); err != nil {
@@ -370,18 +399,68 @@ func ResourceVirtualHostRead(ctx context.Context, d *schema.ResourceData, meta i
 
 	vh := resp.VirtualHost
 
+	// Map API network interfaces into Terraform "interfaces" blocks.
+	//
+	// Provider schema:
+	// - network_id (required)
+	// - auto_assign_ip (optional, default true)
+	// - ip (optional)
+	//
+	// API exposes networkInterfaceList with a list of ipv4Addresses. For import / state refresh we
+	// use a pragmatic mapping:
 	_ = d.Set("uuid", vh.UUID)
 	_ = d.Set("hostname", vh.Hostname)
 	_ = d.Set("status", vh.State)
 	_ = d.Set("cpu_count", vh.CpuCount)
 	_ = d.Set("cores_per_socket", vh.CoresPerSocket)
 	_ = d.Set("memory_size_gb", vh.MemorySizeMB/1024)
+
+	// This is a Terraform-only safety switch controlling whether resize operations are allowed to restart the VM.
+	// The backend doesn't store it on the VirtualHost object, so during Read() we keep whatever value Terraform
+	// already has (config/state), falling back to the schema default when not set (e.g., during import).
+	_ = d.Set("allow_resize_restart", d.Get("allow_resize_restart").(bool))
+	_ = d.Set("note", vh.Note)
+	if vh.DataProtectionPolicy != nil {
+		_ = d.Set("data_protection_policy", vh.DataProtectionPolicy.ID)
+	}
 	_ = d.Set("tier_id", vh.Tier.ID)
 	_ = d.Set("domain_id", vh.Domain.ID)
 	_ = d.Set("template_id", vh.Template.ID)
 	_ = d.Set("project_id", vh.Project.ID)
 	_ = d.Set("customer_id", vh.Customer.ID)
 	_ = d.Set("region", vh.Region)
+
+	// Map backend NetworkInterface objects to Terraform "interfaces" blocks.
+	//
+	// Important: the platform doesn't provide enough information to reliably distinguish
+	// "static IP" vs "DHCP" for every VM in all states. Also, we currently don't implement
+	// in-place updates for interfaces.
+	//
+	// To make imports and `terraform plan -generate-config-out=...` work, we only populate
+	// `interfaces` from the API when Terraform doesn't already have interfaces in state/config
+	// (typical during import). If the user already manages `interfaces` in their HCL, we leave
+	// it untouched to avoid spurious diffs.
+	if current, ok := d.Get("interfaces").([]interface{}); ok && len(current) == 0 {
+		ifaces := make([]interface{}, 0, len(vh.NetworkInterfaceList))
+		for _, ni := range vh.NetworkInterfaceList {
+			m := map[string]interface{}{
+				"network_id": ni.Network.ID,
+			}
+
+			// Heuristic mapping:
+			// - if backend returns at least one IPv4 address, treat it as a manually assigned IP
+			//   (auto_assign_ip=false) and persist the first address into "ip".
+			// - otherwise, keep auto_assign_ip=true and omit "ip".
+			if len(ni.IPv4Addresses) > 0 {
+				m["auto_assign_ip"] = false
+				m["ip"] = ni.IPv4Addresses[0].IP
+			} else {
+				m["auto_assign_ip"] = true
+			}
+			ifaces = append(ifaces, m)
+		}
+		_ = d.Set("interfaces", ifaces)
+	}
 
 	return nil
 }
@@ -466,7 +545,7 @@ func ResourceVirtualHostUpdate(ctx context.Context, d *schema.ResourceData, meta
 	// Simultaneous sizing and tier changes are not supported in a single apply.
 	if changeGroups > 1 {
 		return diag.Errorf(
-			"ocp_virtual_host: simultaneous change of sizing (cpu_count/cores_per_socket/memory_size_gb) and tier_id in a single apply is not supported. "+
+			"ocp_virtual_host: simultaneous change of sizing (cpu_count/cores_per_socket/memory_size_gb) and tier_id in a single apply is not supported. " +
 				"Please apply sizing changes first, wait for the job to finish, and then apply tier change in a separate terraform apply.",
 		)
 	}
@@ -475,7 +554,7 @@ func ResourceVirtualHostUpdate(ctx context.Context, d *schema.ResourceData, meta
 	if sizingChanged {
 		input := map[string]interface{}{
 			"virtualHost":  d.Id(),
-		    "allowRestart": d.Get("allow_resize_restart").(bool),
+			"allowRestart": d.Get("allow_resize_restart").(bool),
 		}
 
 		if d.HasChange("cpu_count") {
