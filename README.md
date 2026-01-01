@@ -5,6 +5,8 @@ Terraform provider for managing OCP infrastructure via its GraphQL API.
 The provider allows you to provision and manage virtual hosts and related
 infrastructure using declarative Terraform configuration.
 
+[![Create VM](https://asciinema.org/a/UpV7IzfJPJhiFFb1BCeIbyek2.svg)](https://asciinema.org/a/UpV7IzfJPJhiFFb1BCeIbyek2)
+
 ## Requirements
 
 - Terraform >= 1.5
