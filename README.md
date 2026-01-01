@@ -72,6 +72,8 @@ terraform import ocp_virtual_host.example "<VirtualHost GlobalID>"
 
 After importing, run `terraform plan` to confirm your configuration matches the remote state.
 
+[![Import VM with generate](https://asciinema.org/a/A3ST3msej4jgAWs9ePKsZcWhr.svg)](https://asciinema.org/a/A3ST3msej4jgAWs9ePKsZcWhr)
+
 ## Data Sources
 
 Data sources are provided to resolve object IDs by name.
