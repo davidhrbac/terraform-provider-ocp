@@ -76,6 +76,10 @@ After importing, run `terraform plan` to confirm your configuration matches the 
 
 [![Import VM with generate](https://asciinema.org/a/A3ST3msej4jgAWs9ePKsZcWhr.svg)](https://asciinema.org/a/A3ST3msej4jgAWs9ePKsZcWhr)
 
+### Delete/Destroy
+
+[![Destroy VM](https://asciinema.org/a/QhzrEsr54lxja0zaq7KcjHNZ3.svg)](https://asciinema.org/a/QhzrEsr54lxja0zaq7KcjHNZ3)
+
 ## Data Sources
 
 Data sources are provided to resolve object IDs by name.
