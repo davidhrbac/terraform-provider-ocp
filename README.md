@@ -55,6 +55,8 @@ resource "ocp_virtual_host" "example" {
 
 ### Update Behavior
 
+[![Update VM](https://asciinema.org/a/JT8vKwhWor2V2DTvztnwE8OQ4.svg)](https://asciinema.org/a/JT8vKwhWor2V2DTvztnwE8OQ4)
+
 Some updates are intentionally restricted to ensure predictable behavior.
 For example, sizing changes and tier changes cannot be applied in a single
 Terraform run.
