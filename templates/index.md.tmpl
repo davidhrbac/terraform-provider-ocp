@@ -1,0 +1,14 @@
+# OCP Provider
+
+Terraform provider for managing OCP infrastructure via its GraphQL API.
+
+## Example Usage
+
+{{ tffile "examples/provider/provider.tf" }}
+
+## Authentication
+
+The provider requires an API token. Provide it with the `token` argument or set
+the `OCP_TOKEN` environment variable.
+
+{{ .SchemaMarkdown }}

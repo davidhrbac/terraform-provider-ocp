@@ -1,0 +1,13 @@
+# {{ .Name }}
+
+Manages an inventory-only virtual host record linked to an existing VM UUID.
+
+## Example Usage
+
+{{ tffile "examples/resources/ocp_virtual_host_caas/resource.tf" }}
+
+## Import
+
+{{ if .HasImport }}{{ codefile "bash" .ImportFile }}{{ end }}
+
+{{ .SchemaMarkdown }}

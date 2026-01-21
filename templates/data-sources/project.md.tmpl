@@ -1,0 +1,17 @@
+# {{ .Name }}
+
+Looks up a project by name within a customer.
+
+## Example Usage
+
+```hcl
+data "ocp_customer" "example" {
+  name = "customer-a"
+}
+
+data "ocp_project" "example" {
+  name        = "project-a"
+  customer_id = data.ocp_customer.example.id
+}
+```
+{{ .SchemaMarkdown | trimspace }}

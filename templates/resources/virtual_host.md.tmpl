@@ -1,0 +1,18 @@
+# {{ .Name }}
+
+Creates and manages a virtual host in OCP.
+
+## Example Usage
+
+{{ tffile "examples/resources/ocp_virtual_host/resource.tf" }}
+
+## Update Behavior
+
+Sizing changes (CPU or memory) and tier changes must be applied in separate
+Terraform runs.
+
+## Import
+
+{{ if .HasImport }}{{ codefile "bash" .ImportFile }}{{ end }}
+
+{{ .SchemaMarkdown }}
