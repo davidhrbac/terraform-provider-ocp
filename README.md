@@ -18,7 +18,7 @@ infrastructure using declarative Terraform configuration.
 provider "ocp" {
   endpoint = "https://ocp.example.com/v2/graphql"
   token    = var.ocp_token
-  insecure = false
+  insecure_skip_verify = false
 }
 ```
 
@@ -28,7 +28,7 @@ provider "ocp" {
 |----|------------|----------|
 | `endpoint` | Base URL of the OCP API | Yes |
 | `token` | Authentication token for the OCP API | Yes |
-| `insecure` | Skip TLS certificate verification (use with caution) | No |
+| `insecure_skip_verify` | Skip TLS certificate verification (use with caution) | No |
 
 The token can also be provided via the `OCP_TOKEN` environment variable.
 
@@ -50,6 +50,40 @@ resource "ocp_virtual_host" "example" {
     network_id     = data.ocp_network.default.id
     auto_assign_ip = true
   }
+}
+```
+
+### `ocp_virtual_host_caas`
+
+Manages an inventory-only virtual host record linked to an existing VM UUID.
+
+```hcl
+data "ocp_customer" "example" {
+  name = "customer-a"
+}
+
+data "ocp_project" "example" {
+  name        = "project-a"
+  customer_id = data.ocp_customer.example.id
+}
+
+data "ocp_tier" "bronze" {
+  name = "Bronze"
+}
+
+data "ocp_vcenter" "example" {
+  customer_id = data.ocp_customer.example.id
+  name        = "vcenter-01"
+}
+
+resource "ocp_virtual_host_caas" "shadow" {
+  region     = "FINLAND"
+  vcenter_id = data.ocp_vcenter.example.id
+  project_id = data.ocp_project.example.id
+  tier_id    = data.ocp_tier.bronze.id
+  hostname   = "legacy-vm"
+  uuid       = "legacy-vm"
+  note       = "inventory-only"
 }
 ```
 
@@ -93,6 +127,7 @@ Available data sources:
 - `ocp_domain`
 - `ocp_network`
 - `ocp_data_protection_policy`
+- `ocp_vcenter`
 
 Example:
 
