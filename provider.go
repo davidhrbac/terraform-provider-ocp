@@ -56,7 +56,8 @@ func Provider() *schema.Provider {
 			"ocp_vcenter":                datasources.DataSourceVcenter(),
 		},
 		ResourcesMap: map[string]*schema.Resource{
-			"ocp_virtual_host": resources.ResourceVirtualHost(),
+			"ocp_virtual_host":      resources.ResourceVirtualHost(),
+			"ocp_virtual_host_caas": resources.ResourceVirtualHostCaas(),
 		},
 
 		// ConfigureContextFunc initializes the API client once and stores it in `meta`.
