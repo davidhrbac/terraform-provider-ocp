@@ -1,5 +1,4 @@
 Creates and manages a virtual host in OCP using immutable (ignition-based) provisioning.
-Creates and manages a virtual host in OCP using immutable (ignition-based) provisioning.
 
 ## Example Usage
 
@@ -108,9 +107,13 @@ Optional:
 
 - `ip_list` (List of String) IP addresses for this interface.
 
+
 <a id="nestedblock--local_disk_list"></a>
 ### Nested Schema for `local_disk_list`
 
 Required:
 
 - `size_gb` (Number) Local disk size gb.
+
+
+
