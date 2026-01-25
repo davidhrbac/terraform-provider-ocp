@@ -53,6 +53,25 @@ resource "ocp_virtual_host" "example" {
 }
 ```
 
+### `ocp_virtual_host_immutable`
+
+Creates a virtual host using ignition config data.
+
+```hcl
+resource "ocp_virtual_host_immutable" "example" {
+  region               = "FINLAND"
+  customer_id          = data.ocp_customer.example.id
+  project_id           = data.ocp_project.example.id
+  hostname             = "immutable-vm"
+  cpu_count            = 4
+  memory_size_gb       = 16
+  template_id          = data.ocp_template.example.id
+  tier_id              = data.ocp_tier.fast.id
+  note                 = "managed-by-terraform"
+  ignition_config_data = filebase64("./ignition.json")
+}
+```
+
 ### `ocp_virtual_host_caas`
 
 Manages an inventory-only virtual host record linked to an existing VM UUID.
